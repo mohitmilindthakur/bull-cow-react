@@ -1,24 +1,13 @@
-import WordRow, { WORD_LENGTH } from '../WordRow';
-// import useGuess from './useGuess';
-import {useState, useEffect, useCallback, createContext} from 'react'
+import { useState, useEffect, useCallback } from 'react';
 import { computeBullCowCount } from '../../utils/words';
-
+import { WORD_LENGTH } from '../WordRow';
 import { useStore } from '../../store/store';
 
-export interface Attempt {
-  word: string;
-  bullCowCount: {
-    bulls: number;
-    cows: number;
-  };
-  computed: boolean;
-}
-
-const MAX_ATTEMPTS = 5;
-
-const App: React.FC = () => {
-  let [attempts, setAttempt] = useState<Attempt[]>([])
+export default function () {
+  console.log('USE GUESS');
   let [guess, setGuess] = useState('');
+  console.log("GUESS", guess)
+  let {setAttempt} = useStore();
 
   const onKeyDown = useCallback((e: KeyboardEvent) => {
     let key = e.key;
@@ -51,12 +40,12 @@ const App: React.FC = () => {
         };
 
         console.log('SET ATTEMPT');
-        setAttempt(current => {
-          return [...current, attempt]
-        });
+        setAttempt(attempt);
 
         return '';
       });
+
+      //   setGuess("");
       return;
     }
 
@@ -79,39 +68,5 @@ const App: React.FC = () => {
     return () => document.removeEventListener('keydown', onKeyDown);
   }, []);
 
-  useEffect(() => {
-    console.log("EFFECT", attempts)
-  }, [attempts])
-
-  // console.log("ATTEMPTS", attempts)
-
-  let isGameOver = attempts.length === MAX_ATTEMPTS;
-
-  return (
-    <div>
-      {isGameOver && <h1>Game Over</h1>}
-
-      <h1>{attempts.length}</h1>
-
-      <header className="my-5">
-        <h5 className="text-center font-semibold text-2xl">Bulls And Cows</h5>
-      </header>
-      <div className="flex justify-center">
-        <div className="flex flex-col gap-12">
-          {attempts.map((item, index) => (
-            <WordRow
-              letters={item.word}
-              bullCowCount={item.bullCowCount}
-              computed={item.computed}
-              key={index}
-            />
-          ))}
-
-          <WordRow letters={guess} />
-        </div>
-      </div>
-    </div>
-  );
-};
-
-export default App;
+  return { guess, setGuess };
+}
