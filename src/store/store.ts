@@ -11,7 +11,6 @@ export const useStore = create<Store>((set, get) => {
     attempts: [],
 
     setAttempt: (attempt: Attempt) => {
-        debugger;
         console.log("**********************************************")
         set(state => ({attempts: [...state.attempts, attempt]}));
     },

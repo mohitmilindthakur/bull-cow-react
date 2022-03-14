@@ -1,3 +1,5 @@
+import {memo} from 'react';
+
 interface WordRowProps {
   letters: string;
   bullCowCount?: {
@@ -42,16 +44,16 @@ const WordRow: React.FC<WordRowProps> = ({
   );
 };
 
-export default WordRow;
+export default memo(WordRow);
 
 interface CharacterProps {
   value: string;
 }
 
-const Character: React.FC<CharacterProps> = ({ value }) => {
+const Character: React.FC<CharacterProps> = memo(({ value }) => {
   return (
     <div className="h-12 w-12 text-2xl uppercase border-2 flex items-center justify-center">
       {value}
     </div>
   );
-};
+});

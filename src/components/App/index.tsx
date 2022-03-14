@@ -1,9 +1,8 @@
-import WordRow, { WORD_LENGTH } from '../WordRow';
-// import useGuess from './useGuess';
-import {useState, useEffect, useCallback, createContext} from 'react'
-import { computeBullCowCount } from '../../utils/words';
-
+import WordRow from '../WordRow';
 import { useStore } from '../../store/store';
+import useGuess from './useGuess';
+import Keyboard from '../Keyboard';
+import {useCallback} from 'react';
 
 export interface Attempt {
   word: string;
@@ -17,75 +16,17 @@ export interface Attempt {
 const MAX_ATTEMPTS = 5;
 
 const App: React.FC = () => {
-  let [attempts, setAttempt] = useState<Attempt[]>([])
-  let [guess, setGuess] = useState('');
+  let { attempts } = useStore();
 
-  const onKeyDown = useCallback((e: KeyboardEvent) => {
-    let key = e.key;
-    if (e.ctrlKey || e.altKey || e.metaKey) return;
-
-    // BACKSPACE
-    if (key === 'Backspace') {
-      setGuess((current) => {
-        if (current.length) {
-          return current.slice(0, current.length - 1);
-        }
-        return '';
-      });
-      return;
-    }
-
-    // ENTER
-    if (key === 'Enter') {
-      setGuess((current) => {
-        if (current.length !== WORD_LENGTH) {
-          return current;
-        }
-
-        let bullCowCount = computeBullCowCount(current);
-
-        let attempt = {
-          word: current,
-          bullCowCount,
-          computed: true,
-        };
-
-        console.log('SET ATTEMPT');
-        setAttempt(current => {
-          return [...current, attempt]
-        });
-
-        return '';
-      });
-      return;
-    }
-
-    if (!/^[a-zA-Z]+$/.test(key)) return;
-
-    if (key.length > 1) return;
-
-    // ADD NEW LETTER TO WORD
-    setGuess((current) => {
-      let newWord = current + key;
-      if (newWord.length > WORD_LENGTH) {
-        return current;
-      }
-      return newWord;
-    });
-  }, []);
-
-  useEffect(() => {
-    document.addEventListener('keydown', onKeyDown);
-    return () => document.removeEventListener('keydown', onKeyDown);
-  }, []);
-
-  useEffect(() => {
-    console.log("EFFECT", attempts)
-  }, [attempts])
-
-  // console.log("ATTEMPTS", attempts)
+  let { guess, setGuessOutside } = useGuess();
 
   let isGameOver = attempts.length === MAX_ATTEMPTS;
+
+  const onClick = useCallback((key: string) => {
+    console.log("KEY", key);
+    setGuessOutside(key)
+
+  }, [])
 
   return (
     <div>
@@ -109,6 +50,10 @@ const App: React.FC = () => {
 
           <WordRow letters={guess} />
         </div>
+      </div>
+
+      <div className="flex justify-center align-center text-center mt-12">
+        <Keyboard onClick={onClick} />
       </div>
     </div>
   );
