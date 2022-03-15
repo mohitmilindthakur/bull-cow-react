@@ -1,8 +1,6 @@
 import WordRow, { WORD_LENGTH } from '../WordRow';
-import { useStore } from '../../store/store';
-import useGuess from './useGuess';
 import Keyboard from '../Keyboard';
-import {useCallback, useEffect, useState} from 'react';
+import { useCallback, useEffect, useReducer } from 'react';
 import { computeBullCowCount } from '../../utils/words';
 
 export interface Attempt {
@@ -14,55 +12,89 @@ export interface Attempt {
   computed: boolean;
 }
 
-const MAX_ATTEMPTS = 5;
+function isValidGuess(key: string): boolean {
+  if (!/^[a-zA-Z]+$/.test(key)) return false;
+
+  if (key.length > 1) return false;
+
+  return true;
+}
+
+interface AppState {
+  guess: string;
+  attempts: Attempt[];
+}
+
+enum ActionTypes {
+  SET_GUESS = "SET_GUESS",
+  BACKSPACE = "BACKSPACE",
+  SET_ATTEMPT = "SET_ATTEMPT"
+}
+
+interface ActionSetGuess {
+  type: ActionTypes.SET_GUESS;
+  payload: string;
+}
+
+interface ActionBackspace {
+  type: ActionTypes.BACKSPACE;
+}
+
+interface ActionSetAttempt {
+  type: ActionTypes.SET_ATTEMPT;
+}
+
+type AllActions = ActionSetGuess | ActionBackspace | ActionSetAttempt;
+
+const initialState: AppState = {
+  guess: '',
+  attempts: [],
+};
+
+const reducer = function (state: AppState, action: AllActions): AppState {
+  switch (action.type) {
+    case 'SET_GUESS':
+      if (!isValidGuess(action.payload)) {
+        return state;
+      }
+
+      let newGuess = state.guess + action.payload;
+      if (newGuess.length > WORD_LENGTH) {
+        return state;
+      }
+
+      return { ...state, guess: state.guess + action.payload };
+
+    case "BACKSPACE":
+      if (state.guess.length) {
+        return {...state, guess: state.guess.slice(0, state.guess.length - 1)}
+      }
+
+    case "SET_ATTEMPT":
+      if (state.guess.length !== WORD_LENGTH) {
+        return state;
+      }
+  
+      let bullCowCount = computeBullCowCount(state.guess);
+  
+      let attempt = {
+        word: state.guess,
+        bullCowCount,
+        computed: true,
+      };
+
+      return {
+        guess: "",
+        attempts: [...state.attempts, attempt]
+      }
+    default:
+      return state;
+  }
+};
 
 const App: React.FC = () => {
+  const [state, dispatch] = useReducer(reducer, initialState);
 
-  // let { setGuessOutside } = useGuess();
-  let { attempts, setAttempt } = useStore();
-  let [guess, setGuess] = useState("")
-
-  let isGameOver = attempts.length === MAX_ATTEMPTS;
-
-  function setGuessOutside(key: string) {
-    console.log("GUESS", guess)
-    if (key === '↵') {
-      console.log('SUBMITTING');
-      submitGuess();
-      return;
-    }
-
-    if (!/^[a-zA-Z]+$/.test(key)) return;
-
-    if (key.length > 1) return;
-
-    // ADD NEW LETTER TO WORD
-
-    let newWord = guess + key;
-    if (newWord.length > WORD_LENGTH) {
-      return;
-    }
-
-    setGuess(newWord);
-  }
-
-  const submitGuess = () => {
-    if (guess.length !== WORD_LENGTH) {
-      return guess;
-    }
-
-    let bullCowCount = computeBullCowCount(guess);
-
-    let attempt = {
-      word: guess,
-      bullCowCount,
-      computed: true,
-    };
-
-    console.log('SET ATTEMPT');
-    setAttempt(attempt);
-    setGuess('');
-  };
 
   const onKeyDown = (e: KeyboardEvent) => {
     let key = e.key;
@@ -70,44 +102,40 @@ const App: React.FC = () => {
 
     // BACKSPACE
     if (key === 'Backspace') {
-      if (guess.length) {
-        setGuess(guess.slice(0, guess.length - 1));
-      }
-      return;
+      return dispatch({type: ActionTypes.BACKSPACE})
     }
 
     // ENTER
     if (key === 'Enter') {
-      submitGuess();
-      return;
+      return dispatch({type: ActionTypes.SET_ATTEMPT})
     }
 
-    setGuessOutside(key);
+    return dispatch({type: ActionTypes.SET_GUESS, payload: key})
   };
 
   useEffect(() => {
     document.addEventListener('keydown', onKeyDown);
     return () => document.removeEventListener('keydown', onKeyDown);
-  }, [guess])
+  }, []);
 
-  const onClick = (key: string) => {
-    console.log("GUESS", guess)
-    console.log("KEY", key);
-    setGuessOutside(key)
-  }
+  const onClick = useCallback((key: string) => {
+    if (key === '↵') {
+      return dispatch({type: ActionTypes.SET_ATTEMPT})
+    } else {
+      return dispatch({type: ActionTypes.SET_GUESS, payload: key})
+    }
+  }, []);
 
   return (
     <div>
-      {isGameOver && <h1>Game Over</h1>}
-
-      <h1>{attempts.length}</h1>
+      <h1>{state.attempts.length}</h1>
 
       <header className="my-5">
         <h5 className="text-center font-semibold text-2xl">Bulls And Cows</h5>
       </header>
       <div className="flex justify-center">
         <div className="flex flex-col gap-12">
-          {attempts.map((item, index) => (
+          {state.attempts.map((item, index) => (
             <WordRow
               letters={item.word}
               bullCowCount={item.bullCowCount}
@@ -116,7 +144,7 @@ const App: React.FC = () => {
             />
           ))}
 
-          <WordRow letters={guess} />
+          <WordRow letters={state.guess} />
         </div>
       </div>
 
