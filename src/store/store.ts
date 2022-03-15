@@ -1,5 +1,6 @@
 import create from 'zustand';
-import { Attempt } from './../components/App';
+import { Attempt } from './../components/App/reducer';
+
 
 interface Store {
   attempts: Attempt[];
