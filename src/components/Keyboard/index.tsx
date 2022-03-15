@@ -9,7 +9,7 @@ interface KeyboardProps {
 const keyboard = [
     "qwertyuiop",
     "asdfghjkl",
-    "↵zxcvbnm"
+    "↵zxcvbnm←"
 ]
 
 const Keyboard: React.FC<KeyboardProps> = ({onClick}) => {

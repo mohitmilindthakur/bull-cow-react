@@ -32,7 +32,13 @@ const App: React.FC = () => {
   const onClick = useCallback((key: string) => {
     if (key === '↵') {
       return dispatch({type: ActionTypes.SET_ATTEMPT})
-    } else {
+    }
+
+    else if (key === "←") {
+      return dispatch({type: ActionTypes.BACKSPACE})
+    }
+
+    else {
       return dispatch({type: ActionTypes.SET_GUESS, payload: key})
     }
   }, []);
