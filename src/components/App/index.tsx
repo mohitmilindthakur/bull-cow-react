@@ -1,11 +1,10 @@
 import WordRow from '../WordRow';
 import Keyboard from '../Keyboard';
 import { useCallback, useEffect, useReducer } from 'react';
-import {reducer, initialState, ActionTypes} from './reducer'
+import { reducer, initialState, ActionTypes } from './reducer';
 
 const App: React.FC = () => {
   const [state, dispatch] = useReducer(reducer, initialState);
-
 
   const onKeyDown = (e: KeyboardEvent) => {
     let key = e.key;
@@ -13,15 +12,15 @@ const App: React.FC = () => {
 
     // BACKSPACE
     if (key === 'Backspace') {
-      return dispatch({type: ActionTypes.BACKSPACE})
+      return dispatch({ type: ActionTypes.BACKSPACE });
     }
 
     // ENTER
     if (key === 'Enter') {
-      return dispatch({type: ActionTypes.SET_ATTEMPT})
+      return dispatch({ type: ActionTypes.SET_ATTEMPT });
     }
 
-    return dispatch({type: ActionTypes.SET_GUESS, payload: key})
+    return dispatch({ type: ActionTypes.SET_GUESS, payload: key });
   };
 
   useEffect(() => {
@@ -31,15 +30,11 @@ const App: React.FC = () => {
 
   const onClick = useCallback((key: string) => {
     if (key === '↵') {
-      return dispatch({type: ActionTypes.SET_ATTEMPT})
-    }
-
-    else if (key === "←") {
-      return dispatch({type: ActionTypes.BACKSPACE})
-    }
-
-    else {
-      return dispatch({type: ActionTypes.SET_GUESS, payload: key})
+      return dispatch({ type: ActionTypes.SET_ATTEMPT });
+    } else if (key === '←') {
+      return dispatch({ type: ActionTypes.BACKSPACE });
+    } else {
+      return dispatch({ type: ActionTypes.SET_GUESS, payload: key });
     }
   }, []);
 

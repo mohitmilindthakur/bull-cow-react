@@ -1,4 +1,4 @@
-import {memo} from 'react';
+import { memo } from 'react';
 
 interface WordRowProps {
   letters: string;
@@ -13,15 +13,15 @@ export const WORD_LENGTH = 5;
 
 const WordRow: React.FC<WordRowProps> = ({
   letters: lettersProp,
-  computed=false,
-  bullCowCount={bulls: 0, cows: 0}
+  computed = false,
+  bullCowCount = { bulls: 0, cows: 0 },
 }) => {
   let letters = lettersProp.split('');
   if (letters.length < WORD_LENGTH) {
-      let remainingLetters = WORD_LENGTH - letters.length;
-      letters = letters.concat(Array(remainingLetters).fill(""))
+    let remainingLetters = WORD_LENGTH - letters.length;
+    letters = letters.concat(Array(remainingLetters).fill(''));
   }
-  
+
   return (
     <div className="flex">
       <div className={`mr-5 table ${!computed && 'invisible'}`}>

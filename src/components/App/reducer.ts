@@ -1,7 +1,6 @@
 import { computeBullCowCount } from '../../utils/words';
 import { WORD_LENGTH } from '../WordRow';
 
-
 export interface Attempt {
   word: string;
   bullCowCount: {
@@ -50,7 +49,10 @@ export const initialState: AppState = {
   attempts: [],
 };
 
-export const reducer = function (state: AppState, action: AllActions): AppState {
+export const reducer = function (
+  state: AppState,
+  action: AllActions
+): AppState {
   switch (action.type) {
     case 'SET_GUESS':
       if (!isValidGuess(action.payload)) {
