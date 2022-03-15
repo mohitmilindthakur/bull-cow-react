@@ -3,19 +3,17 @@ import { computeBullCowCount } from '../../utils/words';
 import { WORD_LENGTH } from '../WordRow';
 import { useStore } from '../../store/store';
 
+let fn: Function;
+let newFn: Function;
+
 export default function () {
-  let [guess, setGuess] = useState('');
-  let { setAttempt } = useStore();
+  let { guess, setGuess, setAttempt } = useStore();
 
-
-  
-
-  console.log("GUESS", guess)
-
-  const setGuessOutside = (key: string) => {
-    if (key === "↵") {
-      console.log("SUBMITTING")
-      submitGuess()
+  function setGuessOutside(key: string) {
+    console.log("GUESS", guess)
+    if (key === '↵') {
+      console.log('SUBMITTING');
+      submitGuess();
       return;
     }
 
@@ -24,14 +22,14 @@ export default function () {
     if (key.length > 1) return;
 
     // ADD NEW LETTER TO WORD
-    setGuess((current) => {
-      let newWord = current + key;
-      if (newWord.length > WORD_LENGTH) {
-        return current;
-      }
-      return newWord;
-    });
-  };
+
+    let newWord = guess + key;
+    if (newWord.length > WORD_LENGTH) {
+      return;
+    }
+
+    setGuess(newWord);
+  }
 
   const submitGuess = () => {
     if (guess.length !== WORD_LENGTH) {
@@ -52,7 +50,6 @@ export default function () {
   };
 
   const onKeyDown = (e: KeyboardEvent) => {
-
     let key = e.key;
     if (e.ctrlKey || e.altKey || e.metaKey) return;
 
@@ -66,7 +63,7 @@ export default function () {
 
     // ENTER
     if (key === 'Enter') {
-      submitGuess()
+      submitGuess();
       return;
     }
 
@@ -78,5 +75,5 @@ export default function () {
     return () => document.removeEventListener('keydown', onKeyDown);
   }, [guess]);
 
-  return { guess, setGuessOutside, submitGuess };
+  return { guess, setGuessOutside, setGuess, submitGuess };
 }
